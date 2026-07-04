@@ -154,8 +154,19 @@ set_admin() {
     before_show_menu
 }
 
+show_api_token() {
+    # Print the central-management APIv2 token. Without -new this reuses the
+    # existing token (idempotent), so viewing it never piles up new tokens.
+    local token=$(/usr/local/s-ui/sui token -desc menu 2>/dev/null)
+    if [[ -n "$token" ]]; then
+        echo -e "${green}API token (copy the line below):${plain}"
+        echo -e "${token}"
+    fi
+}
+
 view_admin() {
     /usr/local/s-ui/sui admin -show
+    show_api_token
     before_show_menu
 }
 
@@ -191,6 +202,7 @@ set_setting() {
 view_setting() {
     /usr/local/s-ui/sui setting -show
     view_uri
+    show_api_token
     before_show_menu
 }
 
