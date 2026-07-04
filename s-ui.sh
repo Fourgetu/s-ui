@@ -839,9 +839,11 @@ show_menu() {
   ${green}19.${plain} SSL Certificate Management
   ${green}20.${plain} Cloudflare SSL Certificate
 ————————————————————————————————
+  ${green}21.${plain} Update Menu Script
+————————————————————————————————
  "
     show_status s-ui
-    echo && read -p "Please enter your selection [0-20]: " num
+    echo && read -p "Please enter your selection [0-21]: " num
 
     case "${num}" in
     0)
@@ -907,8 +909,11 @@ show_menu() {
     20)
         ssl_cert_issue_CF
         ;;
+    21)
+        update_shell
+        ;;
     *)
-        LOGE "Please enter the correct number [0-20]"
+        LOGE "Please enter the correct number [0-21]"
         ;;
     esac
 }
