@@ -276,6 +276,38 @@ prepare_services() {
     systemctl daemon-reload
 }
 
+# Download a GitHub release asset with retry + mirror fallback. A CN VPS often
+# reaches github.com (so the version fetch above succeeds) but then gets its
+# release-CDN connection reset mid-transfer -- the classic wget "Cannot write to
+# '/tmp/...tar.gz' (Success)." followed by "Downloading s-ui failed". So we retry
+# the direct URL, then fall back through public GitHub proxy mirrors, and verify
+# the result is a real gzip each time so a mirror's HTML error page can't slip
+# through as a "successful" download.
+# Usage: download_release OUT_FILE GITHUB_URL
+download_release() {
+    local out="$1" gh_url="$2" src label
+    local sources=(
+        "$gh_url"
+        "https://ghfast.top/$gh_url"
+        "https://gh-proxy.com/$gh_url"
+        "https://ghproxy.net/$gh_url"
+    )
+    for src in "${sources[@]}"; do
+        if [[ "$src" == "$gh_url" ]]; then
+            echo -e "${yellow}Downloading (direct github.com)...${plain}"
+        else
+            label="${src#https://}"; label="${label%%/*}"
+            echo -e "${yellow}Direct download failed, retrying via mirror: ${label}${plain}"
+        fi
+        if wget --no-check-certificate --timeout=30 --tries=2 -O "$out" "$src" \
+            && tar -tzf "$out" > /dev/null 2>&1; then
+            return 0
+        fi
+        rm -f "$out"
+    done
+    return 1
+}
+
 install_s-ui() {
     cd /tmp/
 
@@ -291,18 +323,16 @@ install_s-ui() {
             exit 1
         fi
         echo -e "Got s-ui latest version: ${last_version}, beginning the installation..."
-        wget -N --no-check-certificate -O /tmp/s-ui-linux-$(arch).tar.gz https://github.com/Teminuosi/s-ui/releases/download/${last_version}/s-ui-linux-$(arch).tar.gz
-        if [[ $? -ne 0 ]]; then
-            echo -e "${red}Downloading s-ui failed, please be sure that your server can access Github ${plain}"
+        if ! download_release /tmp/s-ui-linux-$(arch).tar.gz "https://github.com/Teminuosi/s-ui/releases/download/${last_version}/s-ui-linux-$(arch).tar.gz"; then
+            echo -e "${red}Downloading s-ui failed after trying direct + mirrors. Make sure your server can reach Github (or a proxy) and that /tmp has free disk space.${plain}"
             exit 1
         fi
     else
         last_version=$1
         url="https://github.com/Teminuosi/s-ui/releases/download/${last_version}/s-ui-linux-$(arch).tar.gz"
         echo -e "Beginning the install s-ui v$1"
-        wget -N --no-check-certificate -O /tmp/s-ui-linux-$(arch).tar.gz ${url}
-        if [[ $? -ne 0 ]]; then
-            echo -e "${red}download s-ui v$1 failed,please check the version exists${plain}"
+        if ! download_release /tmp/s-ui-linux-$(arch).tar.gz "${url}"; then
+            echo -e "${red}download s-ui v$1 failed (tried direct + mirrors), please check the version exists${plain}"
             exit 1
         fi
     fi
