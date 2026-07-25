@@ -10,6 +10,9 @@
 
 [![License](https://img.shields.io/badge/license-GPL%20V3-blue.svg?longCache=true)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
+> 🌐 **官网 / 导航站**：https://3yuedaohang.com
+> 免费节点、搭建教程、订阅工具，一站直达。
+
 ---
 
 ## 快速开始
