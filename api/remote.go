@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 	"path"
 	"strconv"
 	"strings"
@@ -40,8 +41,35 @@ func (a *ApiService) remoteMiddleware(c *gin.Context) {
 	if remoteLocalOnly[action] {
 		return
 	}
+	// The server registry is a central-panel concept, but its writes go through
+	// the generic "save" action (object=servers lives in the body, invisible to
+	// the action check above). Without this they'd be proxied to the remote and
+	// never touch the local table -- the delete "succeeds" remotely (or 404s) yet
+	// the entry stays. Peek the object and keep servers writes local.
+	if action == "save" && peekFormValue(c, "object") == "servers" {
+		return
+	}
 	a.proxyToRemote(c, serverId, action)
 	c.Abort()
+}
+
+// peekFormValue reads one urlencoded form field without consuming the body for
+// later handlers: it buffers the body, parses a copy, then restores the body so
+// a genuinely proxied request still forwards its full payload.
+func peekFormValue(c *gin.Context, key string) string {
+	if c.Request.Body == nil {
+		return ""
+	}
+	b, err := io.ReadAll(c.Request.Body)
+	c.Request.Body = io.NopCloser(bytes.NewReader(b))
+	if err != nil {
+		return ""
+	}
+	vals, err := url.ParseQuery(string(b))
+	if err != nil {
+		return ""
+	}
+	return vals.Get(key)
 }
 
 func (a *ApiService) proxyToRemote(c *gin.Context, serverId string, action string) {
