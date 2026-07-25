@@ -75,6 +75,30 @@ pick_port() {
     echo "$preferred"
 }
 
+# On upgrade s-ui was just stopped, so anything still holding our panel/sub port
+# is a DIFFERENT process (classically a 3x-ui install also defaulting to sub port
+# 2096). Left alone, s-ui crash-loops on "bind: address already in use" and the
+# panel 503s. Detect the clash and migrate the affected port to a free one.
+resolve_port_clash() {
+    local cur_port cur_sub params=""
+    cur_port=$(/usr/local/s-ui/sui setting -show 2>/dev/null | grep -i "Panel port:" | grep -oE '[0-9]+' | head -1)
+    cur_sub=$(/usr/local/s-ui/sui setting -show 2>/dev/null | grep -i "Sub port:" | grep -oE '[0-9]+' | head -1)
+    if [[ -n "$cur_port" ]] && is_port_in_use "$cur_port"; then
+        local np=$(pick_port "$cur_port")
+        params="$params -port $np"
+        echo -e "${red}[auto] Panel port ${cur_port} is already in use by another process; moving the panel to ${np}.${plain}"
+    fi
+    if [[ -n "$cur_sub" ]] && is_port_in_use "$cur_sub"; then
+        local ns=$(pick_port "$cur_sub")
+        params="$params -subPort $ns"
+        echo -e "${red}[auto] Sub port ${cur_sub} is already in use (another panel? e.g. 3x-ui on 2096); moving subscriptions to ${ns}.${plain}"
+    fi
+    if [[ -n "$params" ]]; then
+        /usr/local/s-ui/sui setting ${params}
+        echo -e "${yellow}[auto] Ports changed to avoid a clash. Update any subscription links / bookmarks accordingly.${plain}"
+    fi
+}
+
 # check root
 [[ $EUID -ne 0 ]] && echo -e "${red}Fatal error: ${plain} Please run this script with root privilege \n " && exit 1
 
@@ -163,6 +187,8 @@ config_after_install() {
             echo -e "${red}If you forget your login info, type ${green}s-ui${red} on the server for the menu.${plain}"
         else
             echo -e "${yellow}[auto] Upgrade detected: keeping existing settings.${plain}"
+            # Guard against a port clash with another panel on the same box.
+            resolve_port_clash
             local up_token=$(/usr/local/s-ui/sui token -desc upgrade 2>/dev/null)
             echo -e "###############################################"
             /usr/local/s-ui/sui admin -show 2>/dev/null
