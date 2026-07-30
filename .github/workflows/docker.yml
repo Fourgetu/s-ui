@@ -60,7 +60,7 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: |
-            ghcr.io/teminuosi/s-ui
+            ghcr.io/fourgetu/s-ui
           tags: |
             type=ref,event=branch
             type=ref,event=tag
@@ -91,7 +91,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: |
-            ghcr.io/teminuosi/s-ui
+            ghcr.io/fourgetu/s-ui
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
@@ -131,7 +131,7 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: |
-            ghcr.io/teminuosi/s-ui
+            ghcr.io/fourgetu/s-ui
           tags: |
             type=ref,event=branch
             type=ref,event=tag
@@ -142,7 +142,7 @@ jobs:
         working-directory: ${{ runner.temp }}/digests
         run: |
           set -e
-          for img in ghcr.io/teminuosi/s-ui; do
+          for img in ghcr.io/fourgetu/s-ui; do
             TAGS_ARGS=$(echo "$DOCKER_METADATA_OUTPUT_JSON" | jq -cr --arg img "$img" '.tags | map(select(startswith($img))) | map("-t " + .) | join(" ")')
             DIGEST_REFS=$(for f in *; do echo -n "${img}@sha256:$(cat "$f") "; done)
             docker buildx imagetools create $TAGS_ARGS $DIGEST_REFS

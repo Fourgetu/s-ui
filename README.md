@@ -1,12 +1,10 @@
-# S-UI(改版)
+# S-UI（改版）
 
 **基于 [SagerNet/sing-box](https://github.com/SagerNet/sing-box) 的高级 Web 面板**
 
-> 本仓库是 [alireza0/s-ui](https://github.com/alireza0/s-ui) 的二次开发分支,在保留上游全部能力的基础上,
-> 把已在 [3x-ui 改版](https://github.com/Teminuosi/3x-ui) 验证过的体验改进搬了过来:
-> 全自动一键安装、面板更新指向本仓库、协议模板、行内二维码、批量删除、中转与多节点部署(逐步推进)。
+> 本仓库是 [alireza0/s-ui](https://github.com/alireza0/s-ui) 的二次开发分支。当前已同步官方 `v1.5.4`，并保留全自动安装、协议模板、行内二维码、批量删除、中转和多节点管理等魔改功能。
 >
-> 仅供个人学习与交流,请勿用于非法用途,请勿用于生产环境。上游版权归原作者所有。
+> 仅供个人学习与交流，请勿用于非法用途，请勿用于生产环境。上游版权归原作者所有。
 
 [![License](https://img.shields.io/badge/license-GPL%20V3-blue.svg?longCache=true)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -20,72 +18,97 @@
 
 ## 快速开始
 
-### 全自动安装(推荐)
+### 全自动安装（推荐）
 
-一条命令装好,全程无需交互:全自动会自动生成随机管理员账号密码和随机面板路径,装完直接打印访问信息。
+全程无需交互。全新安装会自动生成随机管理员账号、密码和面板路径，并在完成后打印访问信息；升级时保留已有设置。
 
 ```sh
-SUI_AUTO=1 bash <(curl -Ls https://raw.githubusercontent.com/Teminuosi/s-ui/main/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/main/install.sh)
 ```
 
 ### 交互式安装
 
-想自己一步步设置端口、路径、账号密码,用普通模式:
+需要手动设置端口、路径、账号和密码时，关闭默认的全自动模式：
 
 ```sh
-bash <(curl -Ls https://raw.githubusercontent.com/Teminuosi/s-ui/main/install.sh)
+SUI_AUTO=0 bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/main/install.sh)
 ```
 
-装好后,在服务器上随时输入 `s-ui` 打开管理菜单(启动/停止/重启、改设置、改账号、SSL 证书、BBR 等)。
+安装完成后，在服务器上输入 `s-ui` 可打开管理菜单。
+
+### 安装器语言
+
+安装器支持 `en`、`fa`、`ru`、`vi`、`zhcn`、`zhtw`。未指定时会根据系统 `$LANG` 自动选择：
+
+```sh
+SUI_LANG=zhcn bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/main/install.sh)
+```
+
+### Alpine Linux
+
+Alpine 没有预装 Bash，需先安装；脚本会自动配置 OpenRC 服务：
+
+```sh
+apk add bash
+bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/main/install.sh)
+```
+
+服务管理命令：`rc-service s-ui start|stop|restart`。
+
+### 安装指定版本
+
+```sh
+VERSION=v1.5.4 && bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/$VERSION/install.sh) $VERSION
+```
+
+> 指定版本安装要求 [Fourgetu/s-ui Releases](https://github.com/Fourgetu/s-ui/releases) 中存在相同标签和对应架构的安装包。
 
 ### Windows
 
-1. 从 [Releases](https://github.com/Teminuosi/s-ui/releases/latest) 下载最新 Windows 包并解压
-2. 以管理员身份运行 `install-windows.bat`,按向导完成
+1. 从 [Fourgetu/s-ui Releases](https://github.com/Fourgetu/s-ui/releases/latest) 下载最新 Windows 包并解压。
+2. 以管理员身份运行 `install-windows.bat`，按向导完成。
 
 ---
 
 ## 默认安装信息
 
-| 项目         | 默认值     |
-| ------------ | ---------- |
-| 面板端口     | `2095`     |
-| 面板路径     | `/app/`    |
-| 订阅端口     | `2096`     |
-| 订阅路径     | `/sub/`    |
-| 账号 / 密码  | `admin`    |
+| 项目 | 默认值 |
+| --- | --- |
+| 面板端口 | `2095` |
+| 面板路径 | `/app/` |
+| 订阅端口 | `2096` |
+| 订阅路径 | `/sub/` |
+| 账号 / 密码 | `admin` |
 
-> 全自动安装(`SUI_AUTO=1`)会把账号密码和面板路径换成随机值,请留意安装结束时打印的信息。
-> 升级(已存在数据库)时全自动模式会**保留原有设置**,不会改动你的账号与路径。
-
----
-
-## 与上游的差异(本分支在做的事)
-
-- **阶段 0 — Fork 基建**:安装/更新脚本全部指向本仓库;CI 按 tag 出 Release 并把版本号写进面板;全自动安装体验。✅
-- **阶段 1 — 一键模板 + 二维码 + 批量删除**:常用协议(VLESS+Reality、Hysteria2 等)一键建好;客户端列表行内出二维码;入站/客户端支持多选批量删除。🚧
-- **阶段 2 — 中转**:粘贴落地分享链接→自动转 outbound→一步配好路由的"添加中转"向导。🚧
-- **阶段 3 — 多节点部署**:以"另一台 S-UI = 一个节点"的方式,中央面板通过 APIv2 令牌远程下发配置、同步流量与心跳。🚧
-
-> 持续跟进上游修复与 sing-box 内核升级,按需回合(不整体合并)。
+> 全自动安装会使用随机账号、密码和面板路径，请保存安装结束时打印的信息。升级已有数据库时不会修改账号和路径。
 
 ---
+
+## 与上游的差异
+
+- **Fork 基建**：安装、更新脚本和 CI Release 指向 `Fourgetu/s-ui`；默认全自动安装。
+- **协议与管理体验**：常用协议一键模板、二维码、批量删除、导出中心和多套面板皮肤。
+- **中转**：从分享链接生成 outbound，并自动配置路由。
+- **多节点管理**：中央面板通过 APIv2 令牌管理远程 S-UI 节点。
+- **安装增强**：自动选择空闲端口、开放防火墙、下载重试与镜像回退。
+
+后续更新采用 `upstream/alireza0/s-ui` 定期合并，保留本仓库的独立魔改提交。
 
 ## 支持的平台
 
-| 平台    | 架构 | 状态 |
-|---------|------|------|
-| Linux   | amd64 / arm64 / armv7 / armv6 / armv5 / 386 / s390x | ✅ |
+| 平台 | 架构 | 状态 |
+| --- | --- | --- |
+| Linux | amd64 / arm64 / armv7 / armv6 / armv5 / 386 / s390x | ✅ |
 | Windows | amd64 / 386 / arm64 | ✅ |
-| macOS   | amd64 / arm64 | 🚧 实验性 |
+| macOS | amd64 / arm64 | 🚧 实验性 |
 
 ## 功能概览
 
-- 多协议:Mixed、SOCKS、HTTP、Direct、Redirect、TProxy;VLESS、VMess、Trojan、Shadowsocks;ShadowTLS、Hysteria、Hysteria2、Naive、TUIC(支持 XTLS)
-- 入站 / 出站高级配置;流量路由界面(PROXY Protocol、外部/透明代理、SSL、端口)
-- 客户端流量上限与到期时间;在线客户端、流量统计与系统状态监控
-- 订阅服务(link / json / clash,可加外部订阅);面板与订阅 HTTPS
-- 多语言(英语、波斯语、越南语、简体中文、繁体中文、俄语);明暗主题;API 接口
+- 多协议：Mixed、SOCKS、HTTP、Direct、Redirect、TProxy、VLESS、VMess、Trojan、Shadowsocks、ShadowTLS、Hysteria、Hysteria2、Naive、TUIC、AnyTLS。
+- 入站、出站和流量路由高级配置。
+- 客户端流量上限、到期时间、在线状态与系统监控。
+- Link、JSON、Clash 订阅及外部订阅。
+- 多语言、明暗主题、API 接口和 HTTPS。
 
 ---
 
@@ -98,20 +121,20 @@ bash <(curl -Ls https://raw.githubusercontent.com/Teminuosi/s-ui/main/install.sh
 # 安装 Docker
 curl -fsSL https://get.docker.com | sh
 
-# 运行 S-UI(GHCR 镜像)
+# 运行 S-UI（GHCR 镜像）
 mkdir s-ui && cd s-ui
 docker run -itd \
     -p 2095:2095 -p 2096:2096 -p 443:443 -p 80:80 \
     -v $PWD/db/:/app/db/ \
     -v $PWD/cert/:/root/cert/ \
     --name s-ui --restart=unless-stopped \
-    ghcr.io/teminuosi/s-ui:latest
+    ghcr.io/fourgetu/s-ui:latest
 ```
 
-自行构建镜像:
+自行构建镜像：
 
 ```shell
-git clone --recurse-submodules https://github.com/Teminuosi/s-ui
+git clone --recurse-submodules https://github.com/Fourgetu/s-ui
 cd s-ui
 docker build -t s-ui .
 ```
@@ -120,12 +143,25 @@ docker build -t s-ui .
 
 ## 卸载
 
+直接运行 `s-ui`，选择卸载；也可以按系统手动清理。
+
+### systemd
+
 ```sh
-sudo -i
 systemctl disable s-ui --now
-rm -f /etc/systemd/system/sing-box.service
+rm -f /etc/systemd/system/s-ui.service
+rm -fr /usr/local/s-ui /etc/s-ui
+rm -f /usr/bin/s-ui
 systemctl daemon-reload
-rm -fr /usr/local/s-ui
+```
+
+### Alpine（OpenRC）
+
+```sh
+rc-service s-ui stop
+rc-update del s-ui default
+rm -f /etc/init.d/s-ui
+rm -fr /usr/local/s-ui /etc/s-ui
 rm -f /usr/bin/s-ui
 ```
 
@@ -137,43 +173,39 @@ rm -f /usr/bin/s-ui
 <summary>展开</summary>
 
 ```shell
-# 克隆(含前端子模块)
-git clone --recurse-submodules https://github.com/Teminuosi/s-ui
+git clone --recurse-submodules https://github.com/Fourgetu/s-ui
 cd s-ui
-
-# 一键构建并运行(前端 + 后端)
 ./runSUI.sh
 ```
 
-分步构建:
+分步构建：
 
 ```shell
-# 前端
 cd frontend && npm install && npm run build && cd ..
-# 后端(需先构建前端)
 rm -fr web/html/* && cp -R frontend/dist/* web/html/
 go build -o sui main.go
 ./sui
 ```
 
-前端代码在独立子模块仓库:[Teminuosi/s-ui-frontend](https://github.com/Teminuosi/s-ui-frontend)
+魔改前端位于独立子模块：[Fourgetu/s-ui-frontend](https://github.com/Fourgetu/s-ui-frontend)。
 
 </details>
 
 ## 环境变量
 
-| 变量           | 取值                                     | 默认     |
-| -------------- | ---------------------------------------- | -------- |
-| SUI_LOG_LEVEL  | `debug` / `info` / `warn` / `error`      | `info`   |
-| SUI_DEBUG      | `true` / `false`                         | `false`  |
-| SUI_BIN_FOLDER | 字符串                                   | `bin`    |
-| SUI_DB_FOLDER  | 字符串                                   | `db`     |
-| SINGBOX_API    | 字符串                                   | -        |
+| 变量 | 取值 | 默认值 |
+| --- | --- | --- |
+| `SUI_LOG_LEVEL` | `debug` / `info` / `warn` / `error` | `info` |
+| `SUI_DEBUG` | `true` / `false` | `false` |
+| `SUI_BIN_FOLDER` | 字符串 | `bin` |
+| `SUI_DB_FOLDER` | 字符串 | `db` |
+| `SINGBOX_API` | 字符串 | - |
 
 ---
 
 ## 致谢
 
-- 上游项目:[alireza0/s-ui](https://github.com/alireza0/s-ui)、[alireza0/s-ui-frontend](https://github.com/alireza0/s-ui-frontend)
-- 内核:[SagerNet/sing-box](https://github.com/SagerNet/sing-box)
-- [API 文档(上游 Wiki)](https://github.com/alireza0/s-ui/wiki/API-Documentation)
+- 上游项目：[alireza0/s-ui](https://github.com/alireza0/s-ui)、[alireza0/s-ui-frontend](https://github.com/alireza0/s-ui-frontend)
+- 魔改前端：[Fourgetu/s-ui-frontend](https://github.com/Fourgetu/s-ui-frontend)
+- 内核：[SagerNet/sing-box](https://github.com/SagerNet/sing-box)
+- [API 文档（上游 Wiki）](https://github.com/alireza0/s-ui/wiki/API-Documentation)
