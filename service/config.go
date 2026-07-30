@@ -210,7 +210,7 @@ func (s *ConfigService) Save(obj string, act string, data json.RawMessage, initU
 		inboundIds, err = s.ClientService.Save(tx, act, data, hostname)
 		if err == nil && len(inboundIds) > 0 {
 			objs = append(objs, "inbounds")
-			err = s.InboundService.RestartInbounds(tx, inboundIds)
+			err = s.InboundService.UpdateInboundsUsers(tx, inboundIds)
 			if err != nil {
 				return nil, common.NewErrorf("failed to update users for inbounds: %v", err)
 			}
@@ -268,32 +268,34 @@ func (s *ConfigService) CheckChanges(lu string) (bool, error) {
 	if lu == "" {
 		return true, nil
 	}
+	intLu, err := strconv.ParseInt(lu, 10, 64)
+	if err != nil {
+		return false, err
+	}
 	if LastUpdate == 0 {
 		db := database.GetDB()
 		var count int64
-		err := db.Model(model.Changes{}).Where("date_time > " + lu).Count(&count).Error
+		err := db.Model(model.Changes{}).Where("date_time > ?", intLu).Count(&count).Error
 		if err == nil {
 			LastUpdate = time.Now().Unix()
 		}
 		return count > 0, err
-	} else {
-		intLu, err := strconv.ParseInt(lu, 10, 64)
-		return LastUpdate > intLu, err
 	}
+	return LastUpdate > intLu, nil
 }
 
 func (s *ConfigService) GetChanges(actor string, chngKey string, count string) []model.Changes {
 	c, _ := strconv.Atoi(count)
-	whereString := "`id`>0"
+	db := database.GetDB()
+	tx := db.Model(model.Changes{}).Where("`id` > 0")
 	if len(actor) > 0 {
-		whereString += " and `actor`='" + actor + "'"
+		tx = tx.Where("`actor` = ?", actor)
 	}
 	if len(chngKey) > 0 {
-		whereString += " and `key`='" + chngKey + "'"
+		tx = tx.Where("`key` = ?", chngKey)
 	}
-	db := database.GetDB()
 	var chngs []model.Changes
-	err := db.Model(model.Changes{}).Where(whereString).Order("`id` desc").Limit(c).Scan(&chngs).Error
+	err := tx.Order("`id` desc").Limit(c).Scan(&chngs).Error
 	if err != nil {
 		logger.Warning(err)
 	}
