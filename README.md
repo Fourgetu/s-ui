@@ -52,7 +52,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/main/install.sh)
 ### 安装指定版本
 
 ```sh
-VERSION=v1.5.5-custom.1 && bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/$VERSION/install.sh) $VERSION
+VERSION=v1.5.5-custom.2 && bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/$VERSION/install.sh) $VERSION
 ```
 
 > 指定版本安装要求 [Fourgetu/s-ui Releases](https://github.com/Fourgetu/s-ui/releases) 中存在相同标签和对应架构的安装包。
