@@ -2,7 +2,7 @@
 
 **基于 [SagerNet/sing-box](https://github.com/SagerNet/sing-box) 的高级 Web 面板**
 
-> 本仓库是 [alireza0/s-ui](https://github.com/alireza0/s-ui) 的二次开发分支。当前已同步官方 `v1.5.4`，并保留全自动安装、协议模板、行内二维码、批量删除、中转和多节点管理等魔改功能。
+> 本仓库是 [alireza0/s-ui](https://github.com/alireza0/s-ui) 的二次开发分支。当前已同步官方 `v1.5.5`，并保留全自动安装、协议模板、行内二维码、批量删除、中转和多节点管理等魔改功能。
 >
 > 仅供个人学习与交流，请勿用于非法用途，请勿用于生产环境。上游版权归原作者所有。
 
@@ -58,7 +58,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/main/install.sh)
 ### 安装指定版本
 
 ```sh
-VERSION=v1.5.4 && bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/$VERSION/install.sh) $VERSION
+VERSION=v1.5.5-custom.1 && bash <(curl -Ls https://raw.githubusercontent.com/Fourgetu/s-ui/$VERSION/install.sh) $VERSION
 ```
 
 > 指定版本安装要求 [Fourgetu/s-ui Releases](https://github.com/Fourgetu/s-ui/releases) 中存在相同标签和对应架构的安装包。
